@@ -52,6 +52,7 @@ can be seen by typing 'help'.
 #define ALT     11
 #define DEL     12
 #define DISP    13
+#define RUN     14
 
 // Total number of commands
 #define NB_COM  14
@@ -73,7 +74,14 @@ const char* commandList[NB_COM] = { "err", "tmp", "help", "exec", "mcl",
                                     "add", "alt", "del", "disp"};
 
 
+typedef struct stackCmd
+{
+  char* cmd;
+  struct stackCmd *nxt;
 
+} StackCmd_t;
+
+StackCmd_t* StackCmd_ptr = NULL;
 
 /*
 *********************************************************************************************************
@@ -88,9 +96,9 @@ uint8_t interpretCommand(char* buffer);
 void defaultState(char* buffer);
 void displayState(char* buffer);
 
-
-
-
+/*                                       linked list function                                          */
+uint8_t stackCmdNew (char* buffer, uint8_t bufferLength);
+void stackCmdBrowse ();
 
 
 
@@ -124,21 +132,29 @@ void APP_Command(void *Ptr_Arg){
     OSMutexPend(dataMutex, 0, &err);
     
     
+    
     // Get command from UART buffer
     getCommand(buffer, 10);
-      
+    OSTimeDlyHMSM(0, 0, 0, 200);
     // If a command has been received
+    if(buffer[0] != 0)
+      if(!(stackCmdNew(buffer, 10)))
+          printf("Error buffering cmd %s\n", buffer);
+
+    if ((StackCmd_ptr))
+      stackCmdBrowse();
+    
     if(buffer[0] != 0) {
 
       switch(currentState) {
         
-      case DEFAULT_STATE:
-        defaultState(buffer);
-        break;
-        
-      case DISPLAY_STATE:
-        displayState(buffer);
-        break;
+        case DEFAULT_STATE:
+          defaultState(buffer);
+          break;
+          
+        case DISPLAY_STATE:
+          displayState(buffer);
+          break;
       }
       
       
@@ -172,16 +188,46 @@ void APP_Command(void *Ptr_Arg){
 *********************************************************************************************************
 */
 
+uint8_t stackCmdNew (char* buffer, uint8_t bufferLength) {
+  StackCmd_t* current = StackCmd_ptr;
+
+  if(!(current = malloc(sizeof(StackCmd_t))))
+    return 0;
+
+  if(!(current->cmd = malloc(sizeof(char)*bufferLength)))
+    return 0;
+
+  strcpy(current->cmd, buffer);
+
+  current->nxt = StackCmd_ptr;
+  StackCmd_ptr = current;
+
+  return 1;
+}
+
+/******************************************************************************/
+
+void stackCmdBrowse () {
+  StackCmd_t* current = StackCmd_ptr;
+  while(current) {
+    printf("%s\n", current->cmd);
+    current = current->nxt;
+  }
+}
+
+/******************************************************************************/
 
 void getCommand(char* buffer, uint8_t strlen){
   
     int i = 0;
     int c;
-    
+    OSTimeDlyHMSM(0, 0, 0, 200);
     while( i++ < strlen ){
       c = getchar();
       if(c == '\n'){
-        printf("%s", buffer);
+        c='\0';
+        strcat(buffer, (char*) &c);
+        printf("%s\n", buffer);
         break;
       }
       else if(c != -1)

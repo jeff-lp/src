@@ -117,6 +117,10 @@ void  ITG3200_Init();
 ITGV  ITG3200_GetMeasurements();
 float ITG3200_ConvertGyro(float value);
 float ITG3200_ConvertTemp(float value);
+
+#if (OS_TIME_GET_SET_EN > 0)
+uint32_t ITG3200_GetTime (uint8_t pin);
+#endif
   
   
   

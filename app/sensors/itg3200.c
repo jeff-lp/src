@@ -43,7 +43,7 @@ void  ITG3200_Init(){
 
     //Enable measurement interruption to get time
 #if (OS_TIME_GET_SET_EN > 0)
-    GPIO_PinModeSet(gpioPortB, ITG3200_PIN);
+    GPIO_PinModeSet(gpioPortB, ITG3200_PIN, gpioModeInput, 0);
     GPIOINT_CallbackRegister(ITG3200_PIN, ITG3200_GetTime);
 
     GPIO_IntConfig(gpioPortB, ITG3200_PIN, TRUE, FALSE, TRUE);
@@ -66,9 +66,12 @@ void  ITG3200_Init(){
 ********************************************************************************************************/
 
 #if (OS_TIME_GET_SET_EN > 0)
-void ITG3200_GetTime (uint8_t pin) {
+uint32_t ITG3200_GetTime (uint8_t pin) {
+  static uint32_t time;
   if(pin == ITG3200_PIN)
-    res.time = OSTimeGet();
+    time = OSTimeGet();
+  
+  return time;
 }
 #endif
 
@@ -92,6 +95,8 @@ ITGV  ITG3200_GetMeasurements(){
   // Get temperature
   i = SENI2C_ReadRegister16(ITG3200_ADDR, ITG3200_TEMP_OUT_H, ITG3200_TEMP_OUT_L);
   res.temp = ITG3200_ConvertTemp((float)i);
+  
+  res.time = ITG3200_GetTime(0);
   
   return res;
 }

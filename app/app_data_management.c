@@ -95,6 +95,8 @@ void APP_SensorDataHandler(void *Ptr_Arg){
     APP_AppDataPtr()->gyro_Y = gyro.Y;
     APP_AppDataPtr()->gyro_Z = gyro.Z;
     APP_AppDataPtr()->gyro_temp = gyro.temp;
+    APP_AppDataPtr()->gyro_time = gyro.time;
+    
     
     // HMC5883L
     HMCV mag1 = HMC5883L_GetMeasurements();

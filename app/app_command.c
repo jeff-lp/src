@@ -52,10 +52,10 @@ can be seen by typing 'help'.
 #define ALT     11
 #define DEL     12
 #define DISP    13
-#define RUN     14
+#define STKCMD  14
 
 // Total number of commands
-#define NB_COM  14
+#define NB_COM  15
 
 
 
@@ -71,7 +71,7 @@ uint8_t currentState = DEFAULT_STATE;
 
 const char* commandList[NB_COM] = { "err", "tmp", "help", "exec", "mcl",
                                     "sci", "rdy", "fwup", "fwld", "swup",
-                                    "add", "alt", "del", "disp"};
+                                    "add", "alt", "del", "disp", "stkcmd"};
 
 
 typedef struct stackCmd
@@ -123,7 +123,7 @@ void APP_Command(void *Ptr_Arg){
   (void)Ptr_Arg; /* Note(1) */
   INT8U err;
   int i;
-  char buffer[10];
+  char buffer[10] = {0};
   //static uint8_t currentContext
   
   while(1){
@@ -131,21 +131,22 @@ void APP_Command(void *Ptr_Arg){
     OSMutexPend(sysI2CMutex, 0, &err);    // Wait for resources to be available
     OSMutexPend(dataMutex, 0, &err);
     
-    
+    // Empty buffer
+    for(i = 0; i < 10; i++)
+      buffer[i] = 0;
     
     // Get command from UART buffer
     getCommand(buffer, 10);
     OSTimeDlyHMSM(0, 0, 0, 200);
+    
     // If a command has been received
-    if(buffer[0] != 0)
-      if(!(stackCmdNew(buffer, 10)))
-          printf("Error buffering cmd %s\n", buffer);
-
-    if ((StackCmd_ptr))
-      stackCmdBrowse();
     
     if(buffer[0] != 0) {
-
+      
+      // Save in command stack
+      if(!(stackCmdNew(buffer, 10)))
+          printf("Error buffering cmd %s\n", buffer);
+      
       switch(currentState) {
         
         case DEFAULT_STATE:
@@ -161,11 +162,6 @@ void APP_Command(void *Ptr_Arg){
       // Prompt the user to enter a new command
       printf("\n\nEnter your command:  ");
     }
-
-    
-    // Empty buffer
-    for(i = 0; i < 10; i++)
-      buffer[i] = 0;
     
     
     // Do stuff
@@ -415,6 +411,10 @@ void defaultState(char* buffer) {
     else
       printf("\nScenario %d deleted. \n", j);
     
+    break;
+  
+  case STKCMD:
+    stackCmdBrowse();
     break;
     
   //---------------

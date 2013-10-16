@@ -245,11 +245,12 @@ void printOSStat(){
 
 void printGyro(){
   printf("Gyro measurements (deg/s and 10*celsius): \n");
-  printf("X:%3d / Y:%3d / Z:%3d / T: %d \n", 
+  printf("X:%3d / Y:%3d / Z:%3d / T: %d / t: %d\n", 
          (int) (APP_AppDataPtr()->gyro_X/*-APP_AppDataPtr()->gyro_Xdrift*/),
          (int) (APP_AppDataPtr()->gyro_Y/*-APP_AppDataPtr()->gyro_Ydrift*/),
          (int) (APP_AppDataPtr()->gyro_Z/*-APP_AppDataPtr()->gyro_Zdrift*/),
-         (int) (APP_AppDataPtr()->gyro_temp*10));
+         (int) (APP_AppDataPtr()->gyro_temp*10),
+         (int) (APP_AppDataPtr()->gyro_time));
 }
 
 /******************************************************************************/

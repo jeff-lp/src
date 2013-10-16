@@ -17,7 +17,7 @@ Functions for converting the values read from the ITG3200
 
 #include <includes.h>
 
-
+uint32_t time = 0;
 
 /********************************************************************************************************
 *                                         ITG3200_Init()
@@ -66,12 +66,9 @@ void  ITG3200_Init(){
 ********************************************************************************************************/
 
 #if (OS_TIME_GET_SET_EN > 0)
-uint32_t ITG3200_GetTime (uint8_t pin) {
-  static uint32_t time;
+void ITG3200_GetTime (uint8_t pin) {
   if(pin == ITG3200_PIN)
     time = OSTimeGet();
-  
-  return time;
 }
 #endif
 
@@ -96,7 +93,8 @@ ITGV  ITG3200_GetMeasurements(){
   i = SENI2C_ReadRegister16(ITG3200_ADDR, ITG3200_TEMP_OUT_H, ITG3200_TEMP_OUT_L);
   res.temp = ITG3200_ConvertTemp((float)i);
   
-  res.time = ITG3200_GetTime(0);
+  // Get time
+  res.time = time;
   
   return res;
 }

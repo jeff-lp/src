@@ -176,6 +176,9 @@ int main(void)
 #if (OS_TASK_NAME_EN > 0)
   OSTaskNameSet(APP_CFG_TASK_START_PRIO, "Start", &err);
 #endif
+  
+  /* Initialise GPIO interrupt dispatcher */
+  GPIOINT_Init();
 
   /* Start multitasking (i.e. give control to uC/OS-II).  */
   OSStart();

@@ -60,6 +60,7 @@ extern "C" {
 #define ITG3200_GYRO_ZOUT_L     34      // R
 #define ITG3200_PWR_MGM         62      // R/W
 
+#define ITG3200_PIN				10 		//ITG3200 
 
 // ITG3200 configuration defines
 #define SMPLRT_DIV      9
@@ -99,6 +100,11 @@ struct ITGValues {
   float Y;
   float Z;
   float temp;
+
+#if (OS_TIME_GET_SET_EN > 0)
+  uint32_t time;
+#endif
+
 };
 
   

@@ -39,6 +39,15 @@ void  ITG3200_Init(){
     SENI2C_WriteRegister8U(ITG3200_ADDR, ITG3200_DLPF_FS,    DLPF_FS);
     SENI2C_WriteRegister8U(ITG3200_ADDR, ITG3200_INT_CFG,    INT_CFG);
     SENI2C_WriteRegister8U(ITG3200_ADDR, ITG3200_PWR_MGM,    PWR_MGM);
+
+
+    //Enable measurement interruption to get time
+#if (OS_TIME_GET_SET_EN > 0)
+    GPIO_PinModeSet(gpioPortB, ITG3200_PIN);
+    GPIOINT_CallbackRegister(ITG3200_PIN, ITG3200_GetTime);
+
+    GPIO_IntConfig(gpioPortB, ITG3200_PIN, TRUE, FALSE, TRUE);
+#endif
 }
 
 
@@ -56,6 +65,12 @@ void  ITG3200_Init(){
 *
 ********************************************************************************************************/
 
+#if (OS_TIME_GET_SET_EN > 0)
+void ITG3200_GetTime (uint8_t pin) {
+  if(pin == ITG3200_PIN)
+    res.time = OSTimeGet();
+}
+#endif
 
 ITGV  ITG3200_GetMeasurements(){
   
